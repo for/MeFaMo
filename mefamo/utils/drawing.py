@@ -5,23 +5,24 @@ import cv2
 
 class Drawing():
         
-    def draw_landmark_point(landmark, image, color = (255, 0, 0), radius = 5):
+    def draw_landmark_point(self, image, color = (255, 0, 0), radius = 5):
         try:
             image_rows, image_cols, _ = image.shape
-            keypoint_px = drawing_utils._normalized_to_pixel_coordinates(landmark.x, landmark.y,
-                                    image_cols, image_rows)
+            keypoint_px = drawing_utils._normalized_to_pixel_coordinates(
+                self.x, self.y, image_cols, image_rows
+            )
             center_coordinates = (int(keypoint_px[0]), int(keypoint_px[1]))
             return cv2.circle(image, center_coordinates, radius, color, 2)
         except Exception as e:
             print(e)
             return image
 
-    def draw_3d_face(landmarks, image):
+    def draw_3d_face(self, image):
         # create pointcloid with open3d
         frame_width, frame_height, channels = image.shape
         try:
-            render = rendering.OffscreenRenderer(frame_width, frame_height)        
-            vector = o3d.utility.Vector3dVector(landmarks[0:3].T)
+            render = rendering.OffscreenRenderer(frame_width, frame_height)
+            vector = o3d.utility.Vector3dVector(self[:3].T)
             pcd = o3d.geometry.PointCloud(vector)
             #o3d.visualization.draw_geometries([pcd])
             yellow = rendering.MaterialRecord()
@@ -43,8 +44,7 @@ class Drawing():
             render.scene.camera.look_at(center, eye, up)
             render.scene.set_background([0, 0, 0, 0])
 
-            img = render.render_to_image()
-            return img
+            return render.render_to_image()
         except Exception as e:
             print(e)
             

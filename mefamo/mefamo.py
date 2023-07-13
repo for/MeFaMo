@@ -24,9 +24,8 @@ from mefamo.custom.face_geometry import (  # isort:skip
 
 # points of the face model that will be used for SolvePnP later
 points_idx = [33, 263, 61, 291, 199]
-points_idx = points_idx + [key for (key, val) in procrustes_landmark_basis]
-points_idx = list(set(points_idx))
-points_idx.sort()
+points_idx += [key for (key, val) in procrustes_landmark_basis]
+points_idx = sorted(set(points_idx))
 
 # Calculates the 3d rotation and 3d landmarks from the 2d landmarks
 def calculate_rotation(face_landmarks, pcf: PCF, image_shape):
@@ -182,7 +181,7 @@ class Mefamo():
         if results.multi_face_landmarks:
             for face_landmarks in results.multi_face_landmarks:
 
-                pose_transform_mat, metric_landmarks, rotation_vector, translation_vector = calculate_rotation(face_landmarks, self.pcf, image.shape)  
+                pose_transform_mat, metric_landmarks, rotation_vector, translation_vector = calculate_rotation(face_landmarks, self.pcf, image.shape)
                 # draw a 3d image of the face
                 if self.show_3d:
                     face_image_3d = Drawing.draw_3d_face(metric_landmarks, image)
@@ -204,14 +203,16 @@ class Mefamo():
                     landmark_drawing_spec=None,
                     connection_drawing_spec=drawing_styles
                     .get_default_face_mesh_contours_style())
-            
-                 # draw iris points
+
                 image = Drawing.draw_landmark_point(face_landmarks.landmark[468], image, color = (0, 0, 255))
                 image = Drawing.draw_landmark_point(face_landmarks.landmark[473], image, color = (0, 255, 0))
 
-                # calculate and set all the blendshapes                
+                # calculate and set all the blendshapes
                 self.blendshape_calulator.calculate_blendshapes(
-                    self.live_link_face, metric_landmarks[0:3].T, face_landmarks.landmark)
+                    self.live_link_face,
+                    metric_landmarks[:3].T,
+                    face_landmarks.landmark,
+                )
 
                 # calculate the head rotation out of the pose matrix
                 eulerAngles = transforms3d.euler.mat2euler(pose_transform_mat)
@@ -231,11 +232,10 @@ class Mefamo():
         white_bg = 0 * np.ones(shape=[720, 720, 3], dtype=np.uint8)
         text_coordinates = [25, 25]
         font = cv2.FONT_HERSHEY_SIMPLEX
-        font_scale = 0.50
         color = (0, 255, 0)
 
         if self.show_image:
-            cv2.imshow('MediaPipe Face Mesh', image.astype('uint8'))  
+            cv2.imshow('MediaPipe Face Mesh', image.astype('uint8'))
             if face_image_3d is not None and type(face_image_3d) == o3d.geometry.Image: 
                 # show the 3d image if it exists
                 img_3d = np.asarray(face_image_3d)
@@ -243,6 +243,7 @@ class Mefamo():
                 cv2.imshow('Open3D Image', np.asarray(face_image_3d)) 
 
             if self.show_debug:
+                font_scale = 0.50
                 for shape in FaceBlendShape:
                     shape_debug_text = f'{shape.name}: {self.live_link_face.get_blendshape(FaceBlendShape(shape.value)):.3f}'
                     cv2.putText(img=white_bg, text=shape_debug_text, org=tuple(text_coordinates), fontFace=font, fontScale=font_scale, color=color, thickness=1)

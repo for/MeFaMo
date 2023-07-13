@@ -39,7 +39,7 @@ class BlendshapeCalculator():
         self._calculate_mouth_landmarks()
         self._calculate_eye_landmarks()
         
-    def _get_landmark(self, index: int, use_normalized: bool = False) -> np.array:   
+    def _get_landmark(self, index: int, use_normalized: bool = False) -> np.array:
         """ Get the stored landmark from the given index.
         
         This function converts both the metric and normalized landmarks to a numpy array.
@@ -64,15 +64,15 @@ class BlendshapeCalculator():
         if type(landmarks) == np.ndarray:
             # is a 3d landmark
             x = landmarks[index][0]
-            y = landmarks[index][1]             
-            z = landmarks[index][2] 
-            return np.array([x, y, z])
-        else:           
+            y = landmarks[index][1]
+            z = landmarks[index][2]
+        else:       
             # is a normalized landmark
             x = landmarks[index].x #* self.image_width
             y = landmarks[index].y #* self.image_height
-            z = landmarks[index].z #* self.image_height
-            return np.array([x, y, z])      
+            z = landmarks[index].z #* self.image_height      
+
+        return np.array([x, y, z])      
 
     #  clamp value to 0 - 1 using the min and max values of the config
     def _remap(self, value, min, max):
@@ -268,8 +268,7 @@ class BlendshapeCalculator():
         eye_inner_lid = math.dist(self._get_landmark(
             eye_points[4]), self._get_landmark(eye_points[7]))
         eye_lid_avg = (eye_outer_lid + eye_mid_lid + eye_inner_lid) / 3
-        ratio = eye_lid_avg / eye_width
-        return ratio
+        return eye_lid_avg / eye_width
 
     def _calculate_eye_landmarks(self):
         # Adapted from Kalidokit, https://github.com/yeemachine/kalidokit/blob/main/src/FaceSolver/calcEyes.ts
