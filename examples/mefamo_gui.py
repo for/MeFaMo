@@ -48,7 +48,7 @@ class MediapipeFaceGUI(App):
         return super().build_config(config)
 
     def button_callback(self, instance):
-        print('The button %s state is <%s>' % (instance, instance.state))
+        print(f'The button {instance} state is <{instance.state}>')
 
     def update(self, dt):
         if self.mdpf.image is not None:
